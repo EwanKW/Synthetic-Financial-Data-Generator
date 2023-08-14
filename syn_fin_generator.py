@@ -5,8 +5,6 @@ import pandas as pd
 from numpy.linalg import inv
 import random
 from numpy.core.multiarray import concatenate
-pip install torch
-pip install pytorch_lightning
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
