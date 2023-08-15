@@ -257,13 +257,13 @@ num_pred = st.slider('Number of samples to generate', 10, 1000, 500, 10)
 def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
 
-if st.button("Generate CSV File"):
+if st.button("Generate Dataset"):
     with st.spinner(text='In progress'):
         generated_df_mul = generate_df_mul(year=year, sector=sector, return_rank=option, num_pred=num_pred)
         time.sleep(3)
     csv = convert_df(generated_df_mul)
     st.download_button(
-        label="Download data as CSV",
+        label="Download Dataset as CSV",
         data=csv,
         file_name='generated_data.csv',
         mime='text/csv',
