@@ -1,2 +1,4 @@
 torch==1.9.0
-pytorch-lightning==1.4.5
+pytorch-lightning==1.9.5
+
+torchmetrics==1.0.1
