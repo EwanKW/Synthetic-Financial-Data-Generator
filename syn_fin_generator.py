@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import pytorch_lightning as pl
+import altair as alt
 
 # from model_module import VAE, CVAE, Encoder, Decoder
 from model_module import VAE, CVAE, Encoder, Decoder
@@ -190,6 +191,7 @@ def generate_df(year, sector, return_rank):
     df_sample = pd.DataFrame(sample, columns=columns_list, index=index_list)
     for field_column in log_fields:
         df_sample[field_column] = df_sample[field_column].transform(log_revert_field)
+    df_sample[['Total Assets Growth Rate', 'Revenue Growth Rate']] = df_sample[['Total Assets Growth Rate', 'Revenue Growth Rate']] * 100
     return df_sample
 
 def generate_df_mul(year, sector, return_rank, num_pred):
@@ -214,8 +216,10 @@ def generate_df_mul(year, sector, return_rank, num_pred):
         df_sample.insert(1, 'Quarter', index_list)
         df_sample_mul = pd.concat([df_sample_mul, df_sample], ignore_index=True)
         
-        for field_column in log_fields:
-            df_sample[field_column] = df_sample[field_column].transform(log_revert_field)
+    for field_column in log_fields:
+        df_sample_mul[field_column] = df_sample_mul[field_column].transform(log_revert_field)
+    
+    df_sample_mul[['Total Assets Growth Rate', 'Revenue Growth Rate']] = df_sample_mul[['Total Assets Growth Rate', 'Revenue Growth Rate']] * 100
     
     return df_sample_mul
 
@@ -242,15 +246,43 @@ with col2:
     
 with col3:
     option = st.selectbox("Return-Tier", ['Unspecified', 'Outperforming', 'Neutral', 'Underperforming'], index=0)
-    
+
+
+#Generate One Sample
+def format_percentage(value):
+    return "{:.2f}%".format(value)
+
 if st.button("Generate Data"):
     # Call the function when the button is clicked
-    generated_df = generate_df(year=year, sector=sector, return_rank=option).transpose()
+    generated_df = generate_df(year=year, sector=sector, return_rank=option)
     
-    # Display the generated DataFrame
-    st.table(generated_df)
+    # Format the DataFrame values
+    formatted_df = generated_df.transpose().applymap(format_percentage)
+    
+    # Display the formatted DataFrame
+    st.table(formatted_df)
+    
+    # Convert the formatted DataFrame back to numeric values for plotting
+    numeric_df = generated_df.reset_index()
+    
+    # Melt the data to make it suitable for visualization
+    melted_df = numeric_df.melt(id_vars='index', var_name='Field', value_name='Percentage (%)')
 
-st.markdown("To generate multiple synthetic samples, select the number of samples and download the csv file provided below.")
+    # Create the Altair Chart
+    chart = alt.Chart(melted_df).mark_bar(size=12.5).encode(
+        x=alt.X('Field:O', axis=alt.Axis(labels=False)),  # Hide x-axis labels
+        y=alt.Y('Percentage (%):Q'),
+        color=alt.Color('Field:N'),
+        column=alt.Column('index:N', title='Quarter'),
+    ).properties(width=alt.Step(15))  # Adjust the width of the chart
+
+    # Display Altair chart using st.altair_chart (faceted)
+    # st.altair_chart(chart, use_container_width=False)
+    st.bar_chart(data=generated_df, height=500)
+    
+
+#Generate Multiple Samples as Dataset
+st.markdown("To generate dataset of multiple synthetic samples, select the number of samples and download the csv file.")
 num_pred = st.slider('Number of samples to generate', 10, 1000, 500, 10)
 
 @st.cache_data
