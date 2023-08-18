@@ -10,7 +10,9 @@ In collaboration with *Bloomberg L.P.* and *New York University Tandon School of
 
 ## Key Highlights
 🤖 Innovative Financial Data Generator: Our novel RNN-based VAE model simulates multivariate quarterly financial data time series for a sector over the course of a year.
+
 🎉 Enhanced Realism and Usability: Compared to traditional methods, our model produces more realistic synthetic samples with a user-friendly interface.
+
 📊 Insights for Trading and Risk Management: Analyzing synthetic sample patterns provides valuable insights for alpha trading strategies and risk management, extendable to diverse datasets.
 
 ## Summary
